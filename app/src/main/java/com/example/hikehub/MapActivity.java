@@ -40,17 +40,14 @@ public class MapActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            //System.out.println("Latitude: " + location.getLatitude());
-                            double latitude = location.getLatitude();
-                            //System.out.println("Longitude: " + location.getLongitude());
-                            double longitude = location.getLongitude();
-                            mapView.getController().setCenter(new GeoPoint(latitude, longitude));
-                        }
+                .addOnSuccessListener(this, location -> {
+                    // Got last known location. In some rare situations this can be null.
+                    if (location != null) {
+                        //System.out.println("Latitude: " + location.getLatitude());
+                        double latitude = location.getLatitude();
+                        //System.out.println("Longitude: " + location.getLongitude());
+                        double longitude = location.getLongitude();
+                        mapView.getController().setCenter(new GeoPoint(latitude, longitude));
                     }
                 });
 
