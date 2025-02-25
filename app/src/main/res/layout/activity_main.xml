@@ -7,12 +7,31 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:orientation="horizontal">
 
-    </FrameLayout>
+        <Button
+            android:id="@+id/button_newHike"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="newHike" />
+
+        <Button
+            android:id="@+id/button_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="map" />
+
+        <Button
+            android:id="@+id/button_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="profile" />
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
