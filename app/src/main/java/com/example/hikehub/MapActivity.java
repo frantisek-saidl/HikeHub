@@ -34,7 +34,7 @@ public class MapActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Request location permission
+        // Request llocation permission
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
