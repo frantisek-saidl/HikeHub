@@ -13,10 +13,25 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/button_newHike"
+            android:id="@+id/button_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="newHike" />
+            android:layout_weight="1"
+            android:text="login" />
+
+        <Button
+            android:id="@+id/button_sign_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="sign up" />
+
+        <Button
+            android:id="@+id/button_new_hike"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="new hike" />
 
         <Button
             android:id="@+id/button_map"
