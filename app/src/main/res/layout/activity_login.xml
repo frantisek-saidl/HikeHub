@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/label_username"
+            android:id="@+id/labelUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/prompt_username"
@@ -25,14 +25,14 @@
             android:textSize="24sp" />
 
         <EditText
-            android:id="@+id/editTextText"
+            android:id="@+id/inputUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="text" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/labelPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/prompt_password"
@@ -40,14 +40,14 @@
             android:textSize="24sp" />
 
         <EditText
-            android:id="@+id/editTextTextPassword"
+            android:id="@+id/inputPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword" />
 
         <Button
-            android:id="@+id/button_submit"
+            android:id="@+id/buttonSubmit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Submit" />
