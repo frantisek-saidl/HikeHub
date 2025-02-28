@@ -1,8 +1,6 @@
 package com.example.hikehub;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,20 +23,11 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize buttons and set their onClick listeners in a loop
-        setupButton(R.id.button_map, MapActivity.class);
-        setupButton(R.id.button_sign_up, SignUpActivity.class);
-        setupButton(R.id.button_login, LoginActivity.class);
-        setupButton(R.id.button_profile, ProfileActivity.class);
-        setupButton(R.id.button_new_hike, NewHikeActivity.class);
-    }
-
-    // Helper method to set up buttons with their respective intents
-    private void setupButton(int buttonId, Class<?> targetActivity) {
-        Button button = findViewById(buttonId);
-        button.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, targetActivity);
-            startActivity(intent);
-        });
+        // Initialize buttons and set their onClick listeners
+        Utils.setupButton(this, R.id.buttonMap, MapActivity.class);
+        Utils.setupButton(this, R.id.buttonSignUp, SignUpActivity.class);
+        Utils.setupButton(this, R.id.buttonLogin, LoginActivity.class);
+        Utils.setupButton(this, R.id.buttonProfile, ProfileActivity.class);
+        Utils.setupButton(this, R.id.buttonNewHike, NewHikeActivity.class);
     }
 }

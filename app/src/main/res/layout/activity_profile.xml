@@ -7,4 +7,9 @@
     android:layout_height="match_parent"
     tools:context=".ProfileActivity">
 
+    <TextView
+        android:id="@+id/textViewUsername"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="bbb" />
 </androidx.constraintlayout.widget.ConstraintLayout>
