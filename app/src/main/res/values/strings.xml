@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">HikeHub</string>
-    <string name="prompt_password">Password:</string>
-    <string name="prompt_username">Username:</string>
-    <string name="submit">Submit</string>
+    <string name="Password">Password:</string>
+    <string name="Username">Username:</string>
+    <string name="Submit">Submit</string>
+    <string name="Login">Login</string>
+    <string name="SignUp">Sign up</string>
 </resources>
