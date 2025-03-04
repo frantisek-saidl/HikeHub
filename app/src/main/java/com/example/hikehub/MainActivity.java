@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,8 +16,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-
-        // Set padding based on system bar insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -27,5 +26,6 @@ public class MainActivity extends AppCompatActivity {
         Utils.setupButton(this, R.id.buttonMap, MapActivity.class);
         Utils.setupButton(this, R.id.buttonProfile, ProfileActivity.class);
         Utils.setupButton(this, R.id.buttonNewHike, NewHikeActivity.class);
+        TextView username = findViewById(R.id.textViewUsername);
     }
 }
