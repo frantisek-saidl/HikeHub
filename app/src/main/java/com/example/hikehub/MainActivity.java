@@ -8,6 +8,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import android.widget.TextView;
+import android.content.SharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +27,13 @@ public class MainActivity extends AppCompatActivity {
         Utils.setupButton(this, R.id.buttonMap, MapActivity.class);
         Utils.setupButton(this, R.id.buttonProfile, ProfileActivity.class);
         Utils.setupButton(this, R.id.buttonNewHike, NewHikeActivity.class);
-        TextView username = findViewById(R.id.textViewUsername);
+
+        // Retrieve the username from SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("LoginPreferences", MODE_PRIVATE);
+        String username = sharedPreferences.getString("username", "Guest");
+
+        // Display the username in the TextView
+        TextView usernameTextView = findViewById(R.id.textViewUsername);
+        usernameTextView.setText(username);
     }
 }
