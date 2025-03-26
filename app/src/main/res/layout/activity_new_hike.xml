@@ -1,10 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".NewHikeActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <org.osmdroid.views.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp" />
+
+    <EditText
+        android:id="@+id/editTextStartLat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Start Latitude" />
+
+    <EditText
+        android:id="@+id/editTextStartLon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Start Longitude" />
+
+    <EditText
+        android:id="@+id/editTextEndLat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="End Latitude" />
+
+    <EditText
+        android:id="@+id/editTextEndLon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="End Longitude" />
+
+    <EditText
+        android:id="@+id/editTextTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Hike Title" />
+
+    <EditText
+        android:id="@+id/editTextDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Hike Description" />
+
+    <Spinner
+        android:id="@+id/spinnerProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/routing_profiles" />
+
+    <Button
+        android:id="@+id/buttonSaveHike"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Hike" />
+    <Button
+        android:id="@+id/buttonResetMarkers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset" />
+
+
+</LinearLayout>

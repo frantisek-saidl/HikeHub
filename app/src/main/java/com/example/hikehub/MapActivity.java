@@ -24,7 +24,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
 public class MapActivity extends AppCompatActivity {
-    private static final String TAG = "MapActivity";
     private MapView mapView;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
@@ -89,7 +88,7 @@ public class MapActivity extends AppCompatActivity {
         try {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
         } catch (SecurityException e) {
-            Log.e(TAG, "SecurityException: Location permission denied", e);
+            Log.e("SecurityException: Location permission denied", e.getMessage());
         }
     }
 
