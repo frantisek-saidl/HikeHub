@@ -1,6 +1,7 @@
 package com.example.hikehub;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,6 +36,19 @@ public class LoginActivity extends AppCompatActivity {
         EditText inputPassword = findViewById(R.id.inputPassword);
         Button buttonSubmit = findViewById(R.id.buttonSubmit);
 
+        // Check if the username is already saved in SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("LoginPreferences", MODE_PRIVATE);
+        String storedUsername = sharedPreferences.getString("username", null);
+
+        // If a username exists in SharedPreferences, skip the login process and go to MainActivity
+        if (storedUsername != null) {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra("username", storedUsername);
+            startActivity(intent);
+            finish(); // Close LoginActivity
+            return; // Prevent the rest of the code from executing
+        }
+
         // Button click listener for login
         buttonSubmit.setOnClickListener(v -> {
             // Extract user inputs
@@ -54,6 +68,12 @@ public class LoginActivity extends AppCompatActivity {
             if (dbHelper.checkPassword(username, hashedPassword)) {
                 // Successful login
                 Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+
+                // Save the username and password hash in SharedPreferences
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("username", username);
+                editor.putString("passwordHash", hashedPassword);
+                editor.apply();
 
                 // Navigate to MainActivity
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);

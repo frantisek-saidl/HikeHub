@@ -9,7 +9,7 @@ import android.database.Cursor;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "HikeHub.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
     private final Context context;
 
     private static final String CREATE_TABLE_USERS =
@@ -34,6 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "start_longitude REAL NOT NULL, " +
                     "end_latitude REAL NOT NULL, " +
                     "end_longitude REAL NOT NULL, " +
+                    "route_type TEXT NOT NULL, " +
                     "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                     "FOREIGN KEY (users_idusers) REFERENCES users(idusers) ON DELETE CASCADE" +
                     ");";
@@ -56,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertHike(int userId, String title, String description, double length, int elevationGain, int highestPoint, String startLocation, String endLocation) {
+    public long insertHike(int userId, String title, String description, double length, int elevationGain, int highestPoint, double startLatitude, double startLongitude, double endLatitude, double endLongitude, String routeType) {
         try (SQLiteDatabase db = this.getWritableDatabase()) {
             ContentValues values = new ContentValues();
             values.put("users_idusers", userId);
@@ -65,11 +66,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put("length_km", length);
             values.put("elevation_gain_m", elevationGain);
             values.put("highest_point_m", highestPoint);
-            values.put("start_location", startLocation);
-            values.put("end_location", endLocation);
+            values.put("start_latitude", startLatitude);
+            values.put("start_longitude", startLongitude);
+            values.put("end_latitude", endLatitude);
+            values.put("end_longitude", endLongitude);
+            values.put("route_type", routeType);  // Store route type
 
             return db.insert("hikes", null, values);
         }
+    }
+
+    public Cursor getHikeDetails(int hikeId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM hikes WHERE idhikes = ?";
+        return db.rawQuery(query, new String[]{String.valueOf(hikeId)});
     }
 
     public String registerUser(String username, String passwordHash, String bio) {
@@ -77,8 +87,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
              Cursor cursor = db.rawQuery("SELECT username FROM users WHERE username = ?", new String[]{username})) {
 
             if (cursor.moveToFirst()) {
+                cursor.close(); // Ensure we close the cursor before returning
                 return "Username already exists";
             }
+            cursor.close(); // Explicitly closing the cursor
 
             ContentValues values = new ContentValues();
             values.put("username", username);
@@ -87,7 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             long newRowId = db.insert("users", null, values);
             if (newRowId != -1) {
-                SharedPreferences sharedPreferences = getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE);
+                SharedPreferences sharedPreferences = context.getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("username", username);
                 editor.putString("passwordHash", passwordHash);
@@ -105,19 +117,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             int columnIndex = cursor.getColumnIndex("password_hash");
             if (columnIndex != -1 && cursor.moveToFirst()) {
-                SharedPreferences sharedPreferences = getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("username", username);
-                editor.putString("passwordHash", passwordHash);
-                editor.apply();
                 String storedPasswordHash = cursor.getString(columnIndex);
-                return storedPasswordHash.equals(passwordHash);
+                cursor.close(); // Closing cursor before returning
+                if (storedPasswordHash.equals(passwordHash)) {
+                    SharedPreferences sharedPreferences = context.getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("username", username);
+                    editor.putString("passwordHash", passwordHash);
+                    editor.apply();
+                    return true;
+                }
             }
             return false;
         }
-    }
-
-    private SharedPreferences getSharedPreferences(String loginPreferences, int modePrivate) {
-        return context.getSharedPreferences(loginPreferences, modePrivate);
     }
 }
