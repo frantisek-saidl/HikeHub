@@ -17,7 +17,7 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText editTextUsername;
     private EditText editTextPassword;
     private EditText editTextPasswordConfirm;
-    private DatabaseHelper dbHelper; // Database instance
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

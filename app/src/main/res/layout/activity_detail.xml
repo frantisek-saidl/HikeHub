@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title of the Hike -->
+    <TextView
+        android:id="@+id/hikeTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hike Title"
+        android:textSize="20sp"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:paddingBottom="8dp"/>
+
+    <!-- MapView to display the hike's route -->
+    <org.osmdroid.views.MapView
+        android:id="@+id/mapview"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"/>
+
+    <!-- Hike Description -->
+    <TextView
+        android:id="@+id/hikeDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"/>
+
+    <!-- Hike Length -->
+    <TextView
+        android:id="@+id/hikeLength"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Length"
+        android:textSize="16sp"
+        android:textColor="#666666"/>
+
+    <!-- Elevation Gain -->
+    <TextView
+        android:id="@+id/elevationGain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Elevation Gain"
+        android:textSize="16sp"
+        android:textColor="#666666"/>
+
+    <!-- Highest Point -->
+    <TextView
+        android:id="@+id/highestPoint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Highest Point"
+        android:textSize="16sp"
+        android:textColor="#666666"/>
+
+    <!-- Start and End Coordinates -->
+    <TextView
+        android:id="@+id/startCoordinates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Coordinates"
+        android:textSize="16sp"
+        android:textColor="#666666"/>
+
+    <TextView
+        android:id="@+id/endCoordinates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="End Coordinates"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:paddingBottom="16dp"/>
+
+</LinearLayout>

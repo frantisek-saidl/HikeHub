@@ -1,11 +1,18 @@
 <resources>
-    <string name="app_name">HikeHub</string>
+    <string name="app_name" translatable="false">HikeHub</string>
     <string name="Password">Password:</string>
     <string name="Username">Username:</string>
     <string name="Submit">Submit</string>
     <string name="Login">Login</string>
     <string name="SignUp">Sign up</string>
     <string name="confirmPassword">Confirm password:</string>
+    <string name="name">Name</string>
+    <string name="password">Password</string>
+    <string name="login">LogIn</string>
+    <string name="new_hike">New Hike</string>
+    <string name="map">Map</string>
+    <string name="profile">Profile</string>
+    <string name="password_repeat">Password repeat</string>
 
     <string-array name="routing_profiles">
         <item>foot</item>
