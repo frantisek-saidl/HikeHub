@@ -6,10 +6,11 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
+import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "HikeHub.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 5;
     private final Context context;
 
     private static final String CREATE_TABLE_USERS =
@@ -17,7 +18,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "idusers INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "username TEXT NOT NULL UNIQUE, " +
                     "password_hash TEXT NOT NULL, " +
-                    "profile_picture BLOB, " +
+                    "profile_picture_path TEXT, " +
+                    "first_name TEXT, " +
+                    "last_name TEXT, " +
                     "bio TEXT, " +
                     "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);";
 
@@ -27,9 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "users_idusers INTEGER NOT NULL, " +
                     "title TEXT NOT NULL, " +
                     "description TEXT, " +
-                    "length_km REAL, " +
-                    "elevation_gain_m INTEGER, " +
-                    "highest_point_m INTEGER, " +
+                    "picture_path TEXT, " +
                     "start_latitude REAL NOT NULL, " +
                     "start_longitude REAL NOT NULL, " +
                     "end_latitude REAL NOT NULL, " +
@@ -57,20 +58,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertHike(int userId, String title, String description, double length, int elevationGain, int highestPoint, double startLatitude, double startLongitude, double endLatitude, double endLongitude, String routeType) {
+    public long insertHike(int userId, String title, String description, double startLatitude, double startLongitude, double endLatitude, double endLongitude, String routeType, String picturePath) {
         try (SQLiteDatabase db = this.getWritableDatabase()) {
             ContentValues values = new ContentValues();
             values.put("users_idusers", userId);
             values.put("title", title);
             values.put("description", description);
-            values.put("length_km", length);
-            values.put("elevation_gain_m", elevationGain);
-            values.put("highest_point_m", highestPoint);
             values.put("start_latitude", startLatitude);
             values.put("start_longitude", startLongitude);
             values.put("end_latitude", endLatitude);
             values.put("end_longitude", endLongitude);
-            values.put("route_type", routeType);  // Store route type
+            values.put("route_type", routeType);
+            values.put("picture_path", picturePath);  // Store the file path
 
             return db.insert("hikes", null, values);
         }
@@ -81,10 +80,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
              Cursor cursor = db.rawQuery("SELECT username FROM users WHERE username = ?", new String[]{username})) {
 
             if (cursor.moveToFirst()) {
-                cursor.close(); // Ensure we close the cursor before returning
+                cursor.close();
                 return "Username already exists";
             }
-            cursor.close(); // Explicitly closing the cursor
+            cursor.close();
 
             ContentValues values = new ContentValues();
             values.put("username", username);
@@ -134,8 +133,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getHikeDetails(int hikeId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM hikes WHERE idhikes = ?";
-        return db.rawQuery(query, new String[]{String.valueOf(hikeId)});
+        String query = "SELECT hikes.title, hikes.description, hikes.picture_path, hikes.created_at, users.username " +
+                "FROM hikes " +
+                "JOIN users ON hikes.users_idusers = users.idusers " +
+                "WHERE hikes.idhikes = ?";
+        Log.d("DatabaseHelper", "Executing query: " + query + " with ID: " + hikeId);
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(hikeId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            Log.d("DatabaseHelper", "Data found for hikeId: " + hikeId);
+        } else {
+            Log.e("DatabaseHelper", "No data found for hikeId: " + hikeId);
+        }
+
+        return cursor;
     }
 
+
+    public String getUsernameById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT username FROM users WHERE idusers = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        if (cursor != null && cursor.moveToFirst()) {
+            int columnIndex = cursor.getColumnIndex("username");
+            if (columnIndex != -1) {
+                String username = cursor.getString(columnIndex);
+                cursor.close();
+                return username;
+            } else {
+                cursor.close();
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 }

@@ -1,153 +1,119 @@
 package com.example.hikehub;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
-import org.osmdroid.config.Configuration;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polyline;
-import org.osmdroid.views.overlay.MapEventsOverlay;
-import org.osmdroid.events.MapEventsReceiver;
+
+import java.io.File;
+import java.io.IOException;
 
 public class NewHikeActivity extends AppCompatActivity {
 
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private ImageView imageViewHike;
+    private String hikeImagePath;
+    private EditText editTextTitle, editTextDescription, editTextStartLat, editTextStartLon, editTextEndLat, editTextEndLon;
+    private Spinner spinnerProfile;
+    private Button buttonSaveHike;
     private MapView mapView;
     private Marker startMarker, endMarker;
-    private boolean selectingStart = true; // True: selecting start, False: selecting end
-
-    private EditText editTextStartLat, editTextStartLon, editTextEndLat, editTextEndLon, editTextTitle, editTextDescription;
-    private Spinner spinnerProfile;
-    private Button buttonSaveHike, buttonResetMarkers;
+    private boolean isPlacingStartMarker = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_hike);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
-        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
-
-        // Initialize UI components
-        mapView = findViewById(R.id.mapView);
-        mapView.setTileSource(TileSourceFactory.MAPNIK);
-        mapView.setMultiTouchControls(true);
-        mapView.getController().setZoom(12.0);
-
+        imageViewHike = findViewById(R.id.imageViewHike);
+        Button buttonSelectImage = findViewById(R.id.buttonSelectImage);
+        buttonSaveHike = findViewById(R.id.buttonSaveHike);
+        editTextTitle = findViewById(R.id.editTextTitle);
+        editTextDescription = findViewById(R.id.editTextDescription);
         editTextStartLat = findViewById(R.id.editTextStartLat);
         editTextStartLon = findViewById(R.id.editTextStartLon);
         editTextEndLat = findViewById(R.id.editTextEndLat);
         editTextEndLon = findViewById(R.id.editTextEndLon);
-        editTextTitle = findViewById(R.id.editTextTitle);
-        editTextDescription = findViewById(R.id.editTextDescription);
         spinnerProfile = findViewById(R.id.spinnerProfile);
-        buttonSaveHike = findViewById(R.id.buttonSaveHike);
-        buttonResetMarkers = findViewById(R.id.buttonResetMarkers);
+        mapView = findViewById(R.id.mapView);
 
-        setupMapInteraction();
+        mapView.setBuiltInZoomControls(true);
+        mapView.setMultiTouchControls(true);
+        mapView.getController().setZoom(15.0);
+        mapView.getController().setCenter(new GeoPoint(48.8583, 2.2944));
+
+        buttonSelectImage.setOnClickListener(v -> openImageSelector());
         setupSaveButton();
-        setupResetButton();  // Set up the reset button listener
+        setupMapMarkers();
+        setupMapClickListener();
     }
 
-    private void setupMapInteraction() {
-        MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
-            @Override
-            public boolean singleTapConfirmedHelper(GeoPoint geoPoint) {
-                if (selectingStart) {
-                    setStartMarker(geoPoint);
-                    selectingStart = false; // Next tap will set end marker
-                    Toast.makeText(NewHikeActivity.this, "Now select end point", Toast.LENGTH_SHORT).show();
-                } else {
-                    setEndMarker(geoPoint);
-                }
-                return true;
+    private void openImageSelector() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri imageUri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                imageViewHike.setImageBitmap(bitmap);
+                hikeImagePath = getPathFromUri(imageUri);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            @Override
-            public boolean longPressHelper(GeoPoint geoPoint) {
-                return false;
-            }
-        };
-
-        MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(mapEventsReceiver);
-        mapView.getOverlays().add(mapEventsOverlay);
-    }
-
-    private void setStartMarker(GeoPoint geoPoint) {
-        if (startMarker == null) {
-            startMarker = new Marker(mapView);
-            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            startMarker.setDraggable(true);
-            startMarker.setOnMarkerDragListener(new Marker.OnMarkerDragListener() {
-                @Override
-                public void onMarkerDragStart(Marker marker) {}
-                @Override
-                public void onMarkerDrag(Marker marker) {}
-                @Override
-                public void onMarkerDragEnd(Marker marker) {
-                    updateStartCoordinates(marker.getPosition());
-                }
-            });
-            mapView.getOverlays().add(startMarker);
         }
-        startMarker.setPosition(geoPoint);
-        updateStartCoordinates(geoPoint);
-        mapView.invalidate();
     }
 
-    private void setEndMarker(GeoPoint geoPoint) {
-        if (endMarker == null) {
-            endMarker = new Marker(mapView);
-            endMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            endMarker.setDraggable(true);
-            endMarker.setOnMarkerDragListener(new Marker.OnMarkerDragListener() {
-                @Override
-                public void onMarkerDragStart(Marker marker) {
-                    updateStartCoordinates(marker.getPosition());
-                }
-                @Override
-                public void onMarkerDrag(Marker marker) {}
-                @Override
-                public void onMarkerDragEnd(Marker marker) {
-                    updateEndCoordinates(marker.getPosition());
-                }
-            });
-            mapView.getOverlays().add(endMarker);
+    private String getPathFromUri(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            String path = cursor.getString(columnIndex);
+            cursor.close();
+            return path;
         }
-        endMarker.setPosition(geoPoint);
-        updateEndCoordinates(geoPoint);
-        mapView.invalidate();
+        return null;
     }
 
-    private void updateStartCoordinates(GeoPoint geoPoint) {
-        editTextStartLat.setText(String.valueOf(geoPoint.getLatitude()));
-        editTextStartLon.setText(String.valueOf(geoPoint.getLongitude()));
-    }
-
-    private void updateEndCoordinates(GeoPoint geoPoint) {
-        editTextEndLat.setText(String.valueOf(geoPoint.getLatitude()));
-        editTextEndLon.setText(String.valueOf(geoPoint.getLongitude()));
-    }
     private void setupSaveButton() {
         buttonSaveHike.setOnClickListener(v -> {
-            // Get the input values
             String title = editTextTitle.getText().toString().trim();
             String description = editTextDescription.getText().toString().trim();
             String profile = spinnerProfile.getSelectedItem().toString();
 
-            // Get the latitude and longitude for start and end points
             String startLatStr = editTextStartLat.getText().toString().trim();
             String startLonStr = editTextStartLon.getText().toString().trim();
             String endLatStr = editTextEndLat.getText().toString().trim();
             String endLonStr = editTextEndLon.getText().toString().trim();
 
-            // Validate input fields
             if (title.isEmpty()) {
                 Toast.makeText(NewHikeActivity.this, "Title is required", Toast.LENGTH_SHORT).show();
                 return;
@@ -163,7 +129,6 @@ public class NewHikeActivity extends AppCompatActivity {
                 return;
             }
 
-            // Validate that the coordinates are valid numbers
             double startLat, startLon, endLat, endLon;
             try {
                 startLat = Double.parseDouble(startLatStr);
@@ -175,9 +140,11 @@ public class NewHikeActivity extends AppCompatActivity {
                 return;
             }
 
-            // All validations passed, proceed to save the hike
+            placeMarker(startLat, startLon, true);
+            placeMarker(endLat, endLon, false);
+
             DatabaseHelper dbHelper = new DatabaseHelper(this);
-            long hikeId = dbHelper.insertHike(1, title, description, 0, 0, 0, startLat, startLon, endLat, endLon,profile);
+            long hikeId = dbHelper.insertHike(1, title, description, startLat, startLon, endLat, endLon, profile, hikeImagePath);
 
             if (hikeId != -1) {
                 Toast.makeText(this, "Hike saved!", Toast.LENGTH_SHORT).show();
@@ -188,29 +155,59 @@ public class NewHikeActivity extends AppCompatActivity {
         });
     }
 
-    private void setupResetButton() {
-        buttonResetMarkers.setOnClickListener(v -> resetMarkers());
+    private void setupMapMarkers() {
+        startMarker = new Marker(mapView);
+        endMarker = new Marker(mapView);
+        mapView.getOverlays().add(startMarker);
+        mapView.getOverlays().add(endMarker);
     }
 
-    private void resetMarkers() {
-        // Remove the markers from the map and reset input fields
-        if (startMarker != null) {
-            mapView.getOverlays().remove(startMarker);
-            startMarker = null;
-        }
-        if (endMarker != null) {
-            mapView.getOverlays().remove(endMarker);
-            endMarker = null;
-        }
+    private void placeMarker(double lat, double lon, boolean isStart) {
+        GeoPoint point = new GeoPoint(lat, lon);
+        Marker marker = isStart ? startMarker : endMarker;
+        marker.setPosition(point);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        marker.setIcon(getResources().getDrawable(isStart ? R.drawable.start_marker : R.drawable.end_marker));
+        marker.setDraggable(true);
+        marker.setOnMarkerDragListener(new Marker.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDrag(Marker marker) {}
 
-        // Clear coordinates in the EditText fields
-        editTextStartLat.setText("");
-        editTextStartLon.setText("");
-        editTextEndLat.setText("");
-        editTextEndLon.setText("");
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                GeoPoint newPosition = marker.getPosition();
+                if (isStart) {
+                    editTextStartLat.setText(String.valueOf(newPosition.getLatitude()));
+                    editTextStartLon.setText(String.valueOf(newPosition.getLongitude()));
+                } else {
+                    editTextEndLat.setText(String.valueOf(newPosition.getLatitude()));
+                    editTextEndLon.setText(String.valueOf(newPosition.getLongitude()));
+                }
+            }
 
-        selectingStart = true; // Reset to selecting start
-        Toast.makeText(this, "Markers reset", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onMarkerDragStart(Marker marker) {}
+        });
+        mapView.invalidate();
+    }
+
+    private void setupMapClickListener() {
+        mapView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                GeoPoint geoPoint = (GeoPoint) mapView.getProjection().fromPixels((int) event.getX(), (int) event.getY());
+                if (isPlacingStartMarker) {
+                    placeMarker(geoPoint.getLatitude(), geoPoint.getLongitude(), true);
+                    editTextStartLat.setText(String.valueOf(geoPoint.getLatitude()));
+                    editTextStartLon.setText(String.valueOf(geoPoint.getLongitude()));
+                    isPlacingStartMarker = false;
+                } else {
+                    placeMarker(geoPoint.getLatitude(), geoPoint.getLongitude(), false);
+                    editTextEndLat.setText(String.valueOf(geoPoint.getLatitude()));
+                    editTextEndLon.setText(String.valueOf(geoPoint.getLongitude()));
+                    isPlacingStartMarker = true;
+                }
+            }
+            return false;
+        });
     }
 }
-
