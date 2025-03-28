@@ -2,5 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="route_color">#FF0000</color>
+    <color name="LSButton">#D1000000</color>
+    <color name="LEditText">#ADFFFFFF</color>
+
 </resources>

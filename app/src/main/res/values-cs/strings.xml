@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Password">Heslo:</string>
+    <string name="Username">Jméno:</string>
+    <string name="Submit">Potvrdit</string>
+    <string name="Login">Přihlásit</string>
+    <string name="SignUp">Registrovat</string>
+    <string name="confirmPassword">Potvrdit heslo</string>
+    <string name="name">Jméno</string>
+    <string name="password">Heslo</string>
+    <string name="login">Přihlásit</string>
+    <string name="new_hike">Nový výlet</string>
+    <string name="map">Mapa</string>
+    <string name="profile">Profil</string>
+    <string name="password_repeat">Heslo znova</string>
+</resources>

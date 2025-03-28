@@ -76,12 +76,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Cursor getHikeDetails(int hikeId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM hikes WHERE idhikes = ?";
-        return db.rawQuery(query, new String[]{String.valueOf(hikeId)});
-    }
-
     public String registerUser(String username, String passwordHash, String bio) {
         try (SQLiteDatabase db = this.getWritableDatabase();
              Cursor cursor = db.rawQuery("SELECT username FROM users WHERE username = ?", new String[]{username})) {
@@ -131,4 +125,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return false;
         }
     }
+
+    public Cursor getAllHikes() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM hikes ORDER BY created_at DESC";
+        return db.rawQuery(query, null);
+    }
+
+    public Cursor getHikeDetails(int hikeId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM hikes WHERE idhikes = ?";
+        return db.rawQuery(query, new String[]{String.valueOf(hikeId)});
+    }
+
 }
