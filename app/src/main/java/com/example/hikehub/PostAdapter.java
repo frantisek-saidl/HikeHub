@@ -51,7 +51,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.detailButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetailActivity.class);
             intent.putExtra("postId", post.getId());
-            Log.i ("PostAdapter", "Post ID: " + post.getId());
+            Log.i("PostAdapter", "Post ID: " + post.getId());
             context.startActivity(intent);
         });
     }
