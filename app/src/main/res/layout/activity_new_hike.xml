@@ -1,68 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".NewHikeActivity">
+
+    <LinearLayout
+        android:id="@+id/toolbar2"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@color/ToolBarColor"
+        android:gravity="top|center"
+        app:layout_constraintTop_toTopOf="parent" >
+
+        <TextView
+            android:id="@+id/NadpisNewHike"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="New Hike"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <org.osmdroid.views.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="300dp" />
+        android:layout_height="277dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar2"
+        app:layout_constraintBottom_toTopOf="@id/scrollView2" />
 
-    <EditText
-        android:id="@+id/editTextStartLat"
+    <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Start Latitude" />
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/mapView"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <EditText
-        android:id="@+id/editTextStartLon"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Start Longitude" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <EditText
-        android:id="@+id/editTextEndLat"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="End Latitude" />
+            <EditText
+                android:id="@+id/editTextTitle"
+                android:layout_width="275dp"
+                android:layout_height="41dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/text_view_border"
+                android:hint="Title"
+                android:textColorHint="@color/black"
+                android:inputType="text"
+                android:textColor="@color/black" />
 
-    <EditText
-        android:id="@+id/editTextEndLon"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="End Longitude" />
+            <Spinner
+                android:id="@+id/spinnerProfile"
+                android:layout_width="140dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/text_view_border"
+                android:entries="@array/routing_profiles" />
 
-    <EditText
-        android:id="@+id/editTextTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Hike Title" />
+            <EditText
+                android:id="@+id/editTextDescription"
+                android:layout_width="350dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/text_view_border"
+                android:gravity="top|start"
+                android:hint="Description"
+                android:textColorHint="@color/black"
+                android:inputType="textMultiLine"
+                android:maxLines="6"
+                android:minLines="3"
+                android:padding="8dp"
+                android:scrollbars="vertical" />
 
-    <EditText
-        android:id="@+id/editTextDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Hike Description" />
+            <EditText
+                android:id="@+id/editTextStartLat"
+                android:layout_width="275dp"
+                android:layout_height="41dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/text_view_border"
+                android:hint="Start Latitude"
+                android:textColorHint="@color/black"
+                android:inputType="numberDecimal"
+                android:textColor="@color/black" />
 
-    <Spinner
-        android:id="@+id/spinnerProfile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:entries="@array/routing_profiles" />
+            <EditText
+                android:id="@+id/editTextStartLon"
+                android:layout_width="275dp"
+                android:layout_height="41dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/text_view_border"
+                android:hint="Start Longitude"
+                android:textColorHint="@color/black"
+                android:inputType="numberDecimal"
+                android:textColor="@color/black" />
 
-    <Button
-        android:id="@+id/buttonSaveHike"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save Hike" />
-    <Button
-        android:id="@+id/buttonResetMarkers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Reset" />
+            <EditText
+                android:id="@+id/editTextEndLat"
+                android:layout_width="275dp"
+                android:layout_height="41dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/text_view_border"
+                android:hint="End Latitude"
+                android:textColorHint="@color/black"
+                android:inputType="numberDecimal"
+                android:textColor="@color/black" />
 
+            <EditText
+                android:id="@+id/editTextEndLon"
+                android:layout_width="275dp"
+                android:layout_height="41dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/text_view_border"
+                android:hint="End Longitude"
+                android:textColorHint="@color/black"
+                android:inputType="numberDecimal"
+                android:textColor="@color/black" />
 
-</LinearLayout>
+            <ImageView
+                android:id="@+id/imageViewHike"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+            <Button
+                android:id="@+id/buttonSelectImage"
+                android:layout_width="223dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/ColorBackGround"
+                android:text="Select Image" />
+
+            <Button
+                android:id="@+id/buttonSaveHike"
+                android:layout_width="223dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/ColorBackGround"
+                android:text="Save Hike" />
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

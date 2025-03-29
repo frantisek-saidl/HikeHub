@@ -131,7 +131,7 @@ public class MapActivity extends AppCompatActivity {
     private void updateMarkerLocation(Location location) {
         GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
         animateMarkerTo(userMarker, geoPoint);
-        mapView.getController().setCenter(geoPoint);
+        mapView.getController().animateTo(geoPoint);
     }
 
     private void updateMarkerRotation(float bearing) {

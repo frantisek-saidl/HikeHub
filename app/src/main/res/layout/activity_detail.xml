@@ -1,81 +1,90 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fillViewport="true"
+    tools:context=".DetailActivity"
+    android:id="@+id/main">
 
-    <!-- Title of the Hike -->
-    <TextView
-        android:id="@+id/hikeTitle"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hike Title"
-        android:textSize="20sp"
-        android:textColor="#000000"
-        android:gravity="center"
-        android:paddingBottom="8dp"/>
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-    <!-- MapView to display the hike's route -->
-    <org.osmdroid.views.MapView
-        android:id="@+id/mapview"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:background="@color/ToolBarColor"
+            android:layout_gravity="bottom|center">
 
-    <!-- Hike Description -->
-    <TextView
-        android:id="@+id/hikeDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Description"
-        android:textSize="16sp"
-        android:textColor="#666666"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"/>
+            <TextView
+                android:id="@+id/hikeTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:text="Hike Title"
+                android:textColor="@android:color/black"
+                android:textSize="35sp"
+                android:textStyle="bold" />
+        </FrameLayout>
 
-    <!-- Hike Length -->
-    <TextView
-        android:id="@+id/hikeLength"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Length"
-        android:textSize="16sp"
-        android:textColor="#666666"/>
+        <org.osmdroid.views.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="16dp" />
 
-    <!-- Elevation Gain -->
-    <TextView
-        android:id="@+id/elevationGain"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Elevation Gain"
-        android:textSize="16sp"
-        android:textColor="#666666"/>
+        <EditText
+            android:id="@+id/hikeDescription"
+            android:layout_width="350dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/text_view_border"
+            android:gravity="top|start"
+            android:hint="Description"
+            android:textColorHint="@color/black"
+            android:inputType="textMultiLine"
+            android:maxLines="6"
+            android:minLines="3"
+            android:padding="8dp"
+            android:scrollbars="vertical" />
 
-    <!-- Highest Point -->
-    <TextView
-        android:id="@+id/highestPoint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Highest Point"
-        android:textSize="16sp"
-        android:textColor="#666666"/>
+        <ImageView
+            android:id="@+id/hikeImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:padding="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/text_view_border"/>
 
-    <!-- Start and End Coordinates -->
-    <TextView
-        android:id="@+id/startCoordinates"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start Coordinates"
-        android:textSize="16sp"
-        android:textColor="#666666"/>
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/text_view_border"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:hint="Created by:"
+            android:textColorHint="@color/black"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp" />
 
-    <TextView
-        android:id="@+id/endCoordinates"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="End Coordinates"
-        android:textSize="16sp"
-        android:textColor="#666666"
-        android:paddingBottom="16dp"/>
+        <TextView
+            android:id="@+id/createdAt"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/text_view_border"
+            android:gravity="center"
+            android:hint="Created at:"
+            android:textColorHint="@color/black"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp" />
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -4,5 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="LSButton">#D1000000</color>
     <color name="LEditText">#ADFFFFFF</color>
-
+    <color name="ToolBarColor">#F66027</color>
+    <color name="ColorBackGround">#E5F48E69</color>
+    <color name="polyline">#0037FF</color>
 </resources>

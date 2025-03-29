@@ -6,10 +6,14 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "HikeHub.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 7;
     private final Context context;
 
     private static final String CREATE_TABLE_USERS =
@@ -17,7 +21,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "idusers INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "username TEXT NOT NULL UNIQUE, " +
                     "password_hash TEXT NOT NULL, " +
-                    "profile_picture BLOB, " +
+                    "profile_picture_path TEXT, " +
+                    "first_name TEXT, " +
+                    "last_name TEXT, " +
                     "bio TEXT, " +
                     "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);";
 
@@ -27,9 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "users_idusers INTEGER NOT NULL, " +
                     "title TEXT NOT NULL, " +
                     "description TEXT, " +
-                    "length_km REAL, " +
-                    "elevation_gain_m INTEGER, " +
-                    "highest_point_m INTEGER, " +
+                    "picture_path TEXT, " +
                     "start_latitude REAL NOT NULL, " +
                     "start_longitude REAL NOT NULL, " +
                     "end_latitude REAL NOT NULL, " +
@@ -54,24 +58,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS hikes");
         db.execSQL("DROP TABLE IF EXISTS users");
+        SharedPreferences sharedPreferences = context.getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE);
+        sharedPreferences.edit().clear().apply();
         onCreate(db);
     }
 
-    public long insertHike(int userId, String title, String description, double length, int elevationGain, int highestPoint, double startLatitude, double startLongitude, double endLatitude, double endLongitude, String routeType) {
+    public long insertHike(int userId, String title, String description, double startLatitude, double startLongitude, double endLatitude, double endLongitude, String routeType, String picturePath) {
         try (SQLiteDatabase db = this.getWritableDatabase()) {
             ContentValues values = new ContentValues();
             values.put("users_idusers", userId);
             values.put("title", title);
             values.put("description", description);
-            values.put("length_km", length);
-            values.put("elevation_gain_m", elevationGain);
-            values.put("highest_point_m", highestPoint);
             values.put("start_latitude", startLatitude);
             values.put("start_longitude", startLongitude);
             values.put("end_latitude", endLatitude);
             values.put("end_longitude", endLongitude);
-            values.put("route_type", routeType);  // Store route type
-
+            values.put("route_type", routeType);
+            values.put("picture_path", picturePath);
             return db.insert("hikes", null, values);
         }
     }
@@ -81,10 +84,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
              Cursor cursor = db.rawQuery("SELECT username FROM users WHERE username = ?", new String[]{username})) {
 
             if (cursor.moveToFirst()) {
-                cursor.close(); // Ensure we close the cursor before returning
+                cursor.close();
                 return "Username already exists";
             }
-            cursor.close(); // Explicitly closing the cursor
+            cursor.close();
 
             ContentValues values = new ContentValues();
             values.put("username", username);
@@ -112,7 +115,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int columnIndex = cursor.getColumnIndex("password_hash");
             if (columnIndex != -1 && cursor.moveToFirst()) {
                 String storedPasswordHash = cursor.getString(columnIndex);
-                cursor.close(); // Closing cursor before returning
+                cursor.close();
                 if (storedPasswordHash.equals(passwordHash)) {
                     SharedPreferences sharedPreferences = context.getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -134,8 +137,151 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getHikeDetails(int hikeId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM hikes WHERE idhikes = ?";
-        return db.rawQuery(query, new String[]{String.valueOf(hikeId)});
+        String query = "SELECT hikes.title, hikes.description, hikes.picture_path, hikes.created_at, users.username, " +
+                "hikes.start_latitude, hikes.start_longitude, hikes.end_latitude, hikes.end_longitude, hikes.route_type " +
+                "FROM hikes " +
+                "JOIN users ON hikes.users_idusers = users.idusers " +
+                "WHERE hikes.idhikes = ?";
+        Log.d("DatabaseHelper", "Executing query: " + query + " with ID: " + hikeId);
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(hikeId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            Log.d("DatabaseHelper", "Data found for hikeId: " + hikeId);
+        } else {
+            Log.e("DatabaseHelper", "No data found for hikeId: " + hikeId);
+        }
+
+        return cursor;
     }
+
+    public String getUsernameById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT username FROM users WHERE idusers = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex("username");
+                if (columnIndex != -1) {
+                    String username = cursor.getString(columnIndex);
+                    cursor.close();
+                    return username;
+                }
+            }
+            cursor.close();
+        }
+        return null;
+    }
+
+    public String getProfilePicturePath(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT profile_picture_path FROM users WHERE username = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{username});
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex("profile_picture_path");
+                if (columnIndex != -1) {
+                    String profilePicturePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    return profilePicturePath;
+                }
+            }
+            cursor.close();
+        }
+        return null;
+    }
+
+    public String getFirstName(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT first_name FROM users WHERE username = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{username});
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex("first_name");
+                if (columnIndex != -1) {
+                    String firstName = cursor.getString(columnIndex);
+                    cursor.close();
+                    return firstName;
+                }
+            }
+            cursor.close();
+        }
+        return null;
+    }
+
+    public String getLastName(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT last_name FROM users WHERE username = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{username});
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex("last_name");
+                if (columnIndex != -1) {
+                    String lastName = cursor.getString(columnIndex);
+                    cursor.close();
+                    return lastName;
+                }
+            }
+            cursor.close();
+        }
+        return null;
+    }
+
+    public void updateUserProfile(String oldUsername, String newFirstName, String newLastName, String newUserName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("first_name", newFirstName);
+        values.put("last_name", newLastName);
+        values.put("username", newUserName);
+        db.update("users", values, "username = ?", new String[]{oldUsername});
+    }
+    public List<Post> getUserPosts(String username) {
+        List<Post> posts = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT hikes.idhikes, hikes.title, hikes.picture_path " +
+                "FROM hikes " +
+                "JOIN users ON hikes.users_idusers = users.idusers " +
+                "WHERE users.username = ?";
+
+        try (Cursor cursor = db.rawQuery(query, new String[]{username})) {
+            if (cursor != null) {
+                int idIndex = cursor.getColumnIndex("idhikes");
+                int titleIndex = cursor.getColumnIndex("title");
+                int picturePathIndex = cursor.getColumnIndex("picture_path");
+
+                if (idIndex == -1 || titleIndex == -1 || picturePathIndex == -1) {
+                    Log.e("DatabaseHelper", "Column index error");
+                    return posts;
+                }
+
+                while (cursor.moveToNext()) {
+                    int id = cursor.getInt(idIndex);
+                    String title = cursor.getString(titleIndex);
+                    String picturePath = cursor.getString(picturePathIndex);
+
+                    if (id > 0) {
+                        posts.add(new Post(id, title, picturePath));
+                    } else {
+                        Log.e("DatabaseHelper", "Invalid post ID: " + id);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error fetching user posts", e);
+        }
+
+        return posts;
+    }
+    public void updateProfilePicturePath(String username, String profilePicturePath) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("profile_picture_path", profilePicturePath);
+        db.update("users", values, "username = ?", new String[]{username});
+    }
+
 
 }
