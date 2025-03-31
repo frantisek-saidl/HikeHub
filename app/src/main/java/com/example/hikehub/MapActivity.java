@@ -39,11 +39,13 @@ public class MapActivity extends AppCompatActivity {
     private Marker userMarker;
     private Location lastKnownLocation;
 
+    // Location request for high accuracy location updates
     private final LocationRequest locationRequest =
             new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000)
                     .setMinUpdateIntervalMillis(2000)
                     .build();
 
+    // Method to request location updates
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,10 +73,12 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+    // Method to handle permission request result
     private boolean hasLocationPermission() {
         return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
+    // Method to initialize the map and overlays
     private void initializeMap() {
         userMarker = new Marker(mapView);
         userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
@@ -91,6 +95,7 @@ public class MapActivity extends AppCompatActivity {
         mapView.getOverlays().add(scaleBarOverlay);
     }
 
+    // Method to handle permission request result
     private void startLocationUpdates() {
         if (!hasLocationPermission()) return;
 
@@ -117,6 +122,7 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+    // Method to animate the marker to a new position
     private void animateMarkerTo(Marker marker, GeoPoint finalPosition) {
         GeoPoint startPosition = marker.getPosition();
         ValueAnimator animator = ObjectAnimator.ofObject(marker, "position", (TypeEvaluator<GeoPoint>) (fraction, startValue, endValue) -> {
@@ -128,16 +134,19 @@ public class MapActivity extends AppCompatActivity {
         animator.start();
     }
 
+    // Method to update the marker's location and animate it
     private void updateMarkerLocation(Location location) {
         GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
         animateMarkerTo(userMarker, geoPoint);
         mapView.getController().animateTo(geoPoint);
     }
 
+    // Method to update the marker's rotation
     private void updateMarkerRotation(float bearing) {
         userMarker.setRotation(bearing);
     }
 
+    // Methods to handle resume, pause, and destroy lifecycle events
     @Override
     protected void onResume() {
         super.onResume();

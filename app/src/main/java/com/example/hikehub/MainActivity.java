@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private PostAdapter postAdapter;
     private List<Post> postList;
 
+    // Method to initialize the activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,12 +51,14 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
     }
 
+    // Method to handle the activity's resume state
     @Override
     protected void onResume() {
         super.onResume();
         loadPostsFromDatabase();
     }
 
+    // Method to check and request permissions
     private void checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
@@ -78,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Method to handle the result of permission requests
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -90,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Method to load posts from the database
     private void loadPostsFromDatabase() {
         postList.clear();
         DatabaseHelper dbHelper = new DatabaseHelper(this);
@@ -97,9 +102,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (cursor.moveToFirst()) {
             do {
-                int idIndex = cursor.getColumnIndex("idhikes");
-                int titleIndex = cursor.getColumnIndex("title");
-                int picturePathIndex = cursor.getColumnIndex("picture_path");
+                int idIndex = cursor.getColumnIndexOrThrow("idhikes");
+                int titleIndex = cursor.getColumnIndexOrThrow("title");
+                int picturePathIndex = cursor.getColumnIndexOrThrow("picture_path");
 
                 if (idIndex != -1 && titleIndex != -1 && picturePathIndex != -1) {
                     int id = cursor.getInt(idIndex);

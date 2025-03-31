@@ -16,6 +16,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 7;
     private final Context context;
 
+    // SQL statement to create the users table
     private static final String CREATE_TABLE_USERS =
             "CREATE TABLE IF NOT EXISTS users (" +
                     "idusers INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -24,9 +25,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "profile_picture_path TEXT, " +
                     "first_name TEXT, " +
                     "last_name TEXT, " +
-                    "bio TEXT, " +
                     "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);";
 
+    // SQL statement to create the hikes table
     private static final String CREATE_TABLE_HIKES =
             "CREATE TABLE IF NOT EXISTS hikes (" +
                     "idhikes INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -43,17 +44,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "FOREIGN KEY (users_idusers) REFERENCES users(idusers) ON DELETE CASCADE" +
                     ");";
 
+    // Constructor
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
     }
 
+    // Called when the database is created for the first time
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE_USERS);
         db.execSQL(CREATE_TABLE_HIKES);
     }
 
+    // Called when the database version is incremented
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS hikes");
@@ -63,6 +67,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    // Method to insert a new hike into the database
     public long insertHike(int userId, String title, String description, double startLatitude, double startLongitude, double endLatitude, double endLongitude, String routeType, String picturePath) {
         try (SQLiteDatabase db = this.getWritableDatabase()) {
             ContentValues values = new ContentValues();
@@ -79,7 +84,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public String registerUser(String username, String passwordHash, String bio) {
+    // Method to register a new user
+    public String registerUser(String username, String passwordHash) {
         try (SQLiteDatabase db = this.getWritableDatabase();
              Cursor cursor = db.rawQuery("SELECT username FROM users WHERE username = ?", new String[]{username})) {
 
@@ -92,14 +98,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put("username", username);
             values.put("password_hash", passwordHash);
-            values.put("bio", bio);
 
             long newRowId = db.insert("users", null, values);
             if (newRowId != -1) {
                 SharedPreferences sharedPreferences = context.getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("username", username);
-                editor.putString("passwordHash", passwordHash);
+                editor.putInt("userId", (int) newRowId);
                 editor.apply();
                 return "User registered successfully";
             } else {
@@ -108,33 +113,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public boolean checkPassword(String username, String passwordHash) {
-        try (SQLiteDatabase db = this.getReadableDatabase();
-             Cursor cursor = db.rawQuery("SELECT password_hash FROM users WHERE username = ?", new String[]{username})) {
-
-            int columnIndex = cursor.getColumnIndex("password_hash");
-            if (columnIndex != -1 && cursor.moveToFirst()) {
-                String storedPasswordHash = cursor.getString(columnIndex);
+    // Method to check if password matches with database
+    public boolean checkPassword(String username, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT password_hash FROM users WHERE username = ?", new String[]{username});
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                String storedPasswordHash = cursor.getString(cursor.getColumnIndexOrThrow("password_hash"));
                 cursor.close();
-                if (storedPasswordHash.equals(passwordHash)) {
-                    SharedPreferences sharedPreferences = context.getSharedPreferences("LoginPreferences", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("username", username);
-                    editor.putString("passwordHash", passwordHash);
-                    editor.apply();
-                    return true;
-                }
+                return storedPasswordHash.equals(password);
             }
-            return false;
+            cursor.close();
         }
+        return false;
     }
 
+    //Method to get all hikes from the database
     public Cursor getAllHikes() {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT * FROM hikes ORDER BY created_at DESC";
         return db.rawQuery(query, null);
     }
 
+    // Method to get hike details for a specific hike based on the hike ID
     public Cursor getHikeDetails(int hikeId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT hikes.title, hikes.description, hikes.picture_path, hikes.created_at, users.username, " +
@@ -155,25 +156,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public String getUsernameById(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT username FROM users WHERE idusers = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
-
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex("username");
-                if (columnIndex != -1) {
-                    String username = cursor.getString(columnIndex);
-                    cursor.close();
-                    return username;
-                }
-            }
-            cursor.close();
-        }
-        return null;
-    }
-
+    // Method to get the profile picture path for a specific user
     public String getProfilePicturePath(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT profile_picture_path FROM users WHERE username = ?";
@@ -181,7 +164,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex("profile_picture_path");
+                int columnIndex = cursor.getColumnIndexOrThrow("profile_picture_path");
                 if (columnIndex != -1) {
                     String profilePicturePath = cursor.getString(columnIndex);
                     cursor.close();
@@ -193,6 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return null;
     }
 
+    // Method to get the users first name
     public String getFirstName(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT first_name FROM users WHERE username = ?";
@@ -200,7 +184,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex("first_name");
+                int columnIndex = cursor.getColumnIndexOrThrow("first_name");
                 if (columnIndex != -1) {
                     String firstName = cursor.getString(columnIndex);
                     cursor.close();
@@ -212,6 +196,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return null;
     }
 
+    // Method to get the user's last name
     public String getLastName(String username) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT last_name FROM users WHERE username = ?";
@@ -219,7 +204,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex("last_name");
+                int columnIndex = cursor.getColumnIndexOrThrow("last_name");
                 if (columnIndex != -1) {
                     String lastName = cursor.getString(columnIndex);
                     cursor.close();
@@ -231,6 +216,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return null;
     }
 
+    // Method to update the user's profile information
     public void updateUserProfile(String oldUsername, String newFirstName, String newLastName, String newUserName) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -239,6 +225,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("username", newUserName);
         db.update("users", values, "username = ?", new String[]{oldUsername});
     }
+
+    // Method to get the user's posts
     public List<Post> getUserPosts(String username) {
         List<Post> posts = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -249,14 +237,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         try (Cursor cursor = db.rawQuery(query, new String[]{username})) {
             if (cursor != null) {
-                int idIndex = cursor.getColumnIndex("idhikes");
-                int titleIndex = cursor.getColumnIndex("title");
-                int picturePathIndex = cursor.getColumnIndex("picture_path");
-
-                if (idIndex == -1 || titleIndex == -1 || picturePathIndex == -1) {
-                    Log.e("DatabaseHelper", "Column index error");
-                    return posts;
-                }
+                int idIndex = cursor.getColumnIndexOrThrow("idhikes");
+                int titleIndex = cursor.getColumnIndexOrThrow("title");
+                int picturePathIndex = cursor.getColumnIndexOrThrow("picture_path");
 
                 while (cursor.moveToNext()) {
                     int id = cursor.getInt(idIndex);
@@ -276,6 +259,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return posts;
     }
+
+    // Method to update the user's profile picture path
     public void updateProfilePicturePath(String username, String profilePicturePath) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -283,5 +268,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.update("users", values, "username = ?", new String[]{username});
     }
 
+    // Method to get the user's ID
+    public int getUserId(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT idusers FROM users WHERE username = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{username});
 
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int userId = cursor.getInt(cursor.getColumnIndexOrThrow("idusers"));
+                Log.i("DatabaseHelper", "User ID for " + username + ": " + userId);
+                cursor.close();
+                return userId;
+            }
+            cursor.close();
+        }
+        return -1;
+    }
 }

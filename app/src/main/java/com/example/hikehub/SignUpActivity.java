@@ -19,6 +19,7 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText editTextPasswordConfirm;
     private DatabaseHelper dbHelper;
 
+    // Method to handle the sign-up process
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,23 +31,18 @@ public class SignUpActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize database
         dbHelper = new DatabaseHelper(this);
 
-        // Initialize input fields
         editTextUsername = findViewById(R.id.editTextUsername);
         editTextPassword = findViewById(R.id.editTextPassword);
         editTextPasswordConfirm = findViewById(R.id.editTextPasswordConfirm);
 
-        // Button for form submission
         Button buttonSubmit = findViewById(R.id.buttonSubmit);
         buttonSubmit.setOnClickListener(v -> {
-            // Extract values
             String username = editTextUsername.getText().toString().trim();
             String password = editTextPassword.getText().toString();
             String confirmPassword = editTextPasswordConfirm.getText().toString();
 
-            // Validate input
             if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
                 return;
@@ -57,24 +53,18 @@ public class SignUpActivity extends AppCompatActivity {
                 return;
             }
 
-            // Hash the password before storing
             String hashedPassword = Utils.hashPassword(password);
 
-            // Insert user into database using the DatabaseHelper
-            String resultMessage = dbHelper.registerUser(username, hashedPassword, "");
+            String resultMessage = dbHelper.registerUser(username, hashedPassword);
 
-            // Handle the response from the DatabaseHelper
             if (resultMessage.equals("User registered successfully")) {
-                // User created successfully
                 Toast.makeText(this, "User registered successfully!", Toast.LENGTH_SHORT).show();
 
-                // Navigate to MainActivity
                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                 intent.putExtra("username", username);
                 startActivity(intent);
-                finish(); // Close sign-up activity
+                finish();
             } else {
-                // Show the error message
                 Toast.makeText(this, resultMessage, Toast.LENGTH_SHORT).show();
             }
         });

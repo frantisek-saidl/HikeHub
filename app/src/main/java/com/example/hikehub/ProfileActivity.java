@@ -31,6 +31,7 @@ public class ProfileActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private PostAdapter postAdapter;
 
+    // Constructor
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +75,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    // This method is called when the activity is resumed
     @Override
     protected void onResume() {
         super.onResume();
@@ -81,6 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
         loadUserPosts();
     }
 
+    // This method loads the profile data from the database and sets it to the views
     private void loadProfileData() {
         String username = sharedPreferences.getString("username", null);
         if (username != null) {
@@ -103,6 +106,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    // This method loads the user's posts from the database and sets it to the RecyclerView
     private void loadUserPosts() {
         String username = sharedPreferences.getString("username", null);
         if (username != null) {

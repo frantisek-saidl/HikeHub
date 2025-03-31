@@ -34,6 +34,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private ImageView profileImageView;
     private Uri profileImageUri;
 
+    // Method to initialize the activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,11 +91,13 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
+    // Method to open the image chooser
     private void openImageChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    // Method to handle the result of the image chooser
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -109,6 +112,7 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
+    // Method to save the profile picture to internal storage
     private String saveProfilePicture(Uri uri) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
