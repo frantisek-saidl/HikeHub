@@ -5,16 +5,17 @@ public class Post {
     private String title;
     private String picturePath;
 
+    // Method to set the values of the fields
     public Post(int id, String title, String picturePath) {
         this.id = id;
         this.title = title;
         this.picturePath = picturePath;
     }
 
+    // Methods to get the values of the fields
     public int getId() {
         return id;
     }
-
     public String getTitle() {
         return title;
     }

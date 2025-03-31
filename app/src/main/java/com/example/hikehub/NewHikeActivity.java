@@ -1,6 +1,7 @@
 package com.example.hikehub;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -37,6 +38,7 @@ public class NewHikeActivity extends AppCompatActivity {
     private Marker startMarker, endMarker;
     private boolean isPlacingStartMarker = true;
 
+    // Method to initialize the activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,11 +72,13 @@ public class NewHikeActivity extends AppCompatActivity {
         setupMapClickListener();
     }
 
+    // Method to open the image selector
     private void openImageSelector() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    // Method to handle the result of the image selection
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -90,6 +94,7 @@ public class NewHikeActivity extends AppCompatActivity {
         }
     }
 
+    // Method to get the file path from the URI
     private String getPathFromUri(Uri uri) {
         String[] projection = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
@@ -103,6 +108,7 @@ public class NewHikeActivity extends AppCompatActivity {
         return null;
     }
 
+    // Method to set up the save button
     private void setupSaveButton() {
         buttonSaveHike.setOnClickListener(v -> {
             String title = editTextTitle.getText().toString().trim();
@@ -143,8 +149,16 @@ public class NewHikeActivity extends AppCompatActivity {
             placeMarker(startLat, startLon, true);
             placeMarker(endLat, endLon, false);
 
+            SharedPreferences sharedPreferences = getSharedPreferences("LoginPreferences", MODE_PRIVATE);
+            int userId = sharedPreferences.getInt("userId", -1);
+
+            if (userId == -1) {
+                Toast.makeText(NewHikeActivity.this, "User ID not found", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             DatabaseHelper dbHelper = new DatabaseHelper(this);
-            long hikeId = dbHelper.insertHike(1, title, description, startLat, startLon, endLat, endLon, profile, hikeImagePath);
+            long hikeId = dbHelper.insertHike(userId, title, description, startLat, startLon, endLat, endLon, profile, hikeImagePath);
 
             if (hikeId != -1) {
                 Toast.makeText(this, "Hike saved!", Toast.LENGTH_SHORT).show();
@@ -155,6 +169,7 @@ public class NewHikeActivity extends AppCompatActivity {
         });
     }
 
+    // Method to set up the map markers
     private void setupMapMarkers() {
         startMarker = new Marker(mapView);
         endMarker = new Marker(mapView);
@@ -185,12 +200,14 @@ public class NewHikeActivity extends AppCompatActivity {
                 }
             }
 
+            // Method to handle marker drag
             @Override
             public void onMarkerDragStart(Marker marker) {}
         });
         mapView.invalidate();
     }
 
+    // Method to set up the map click listener
     private void setupMapClickListener() {
         mapView.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {

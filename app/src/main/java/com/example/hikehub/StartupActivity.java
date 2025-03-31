@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class StartupActivity extends AppCompatActivity {
 
+    // This activity is the entry point of the app and provides options to log in or sign up.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

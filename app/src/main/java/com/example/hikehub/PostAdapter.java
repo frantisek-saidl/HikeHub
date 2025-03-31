@@ -18,36 +18,43 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.File;
 import java.util.List;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
+public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
-    private Context context;
-    private List<Post> postList;
+    private final List<Post> posts;
+    private final Context context;
 
-    public PostAdapter(Context context, List<Post> postList) {
+    // Modified constructor to accept a context
+    public PostAdapter(Context context, List<Post> posts) {
         this.context = context;
-        this.postList = postList;
+        this.posts = posts;
     }
 
+    // Create new views
     @NonNull
     @Override
-    public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.post_item, parent, false);
-        return new PostViewHolder(view);
+        return new ViewHolder(view);
     }
 
+    // Replace the contents of a view
     @Override
-    public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-        Post post = postList.get(position);
-        holder.postTitle.setText(post.getTitle());
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Post post = posts.get(position);
+        holder.titleTextView.setText(post.getTitle());
 
-        File imgFile = new File(post.getPicturePath());
-        if (imgFile.exists()) {
-            Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-            holder.postImage.setImageBitmap(bitmap);
+        String picturePath = post.getPicturePath();
+        if (picturePath != null) {
+            File imgFile = new File(picturePath);
+            if (imgFile.exists()) {
+                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                holder.imageView.setImageBitmap(myBitmap);
+            } else {
+                holder.imageView.setImageResource(R.drawable.map);
+            }
         } else {
-            Log.d("PostAdapter", "Image file not found: " + post.getPicturePath());
+            holder.imageView.setImageResource(R.drawable.map);
         }
-
         holder.detailButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetailActivity.class);
             intent.putExtra("postId", post.getId());
@@ -56,20 +63,23 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         });
     }
 
+    // Return the size of dataset
     @Override
     public int getItemCount() {
-        return postList.size();
+        return posts.size();
     }
 
-    public static class PostViewHolder extends RecyclerView.ViewHolder {
-        TextView postTitle;
-        ImageView postImage;
-        Button detailButton;
+    // Provide a reference to the views for each data item
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView titleTextView;
+        public ImageView imageView;
+        public Button detailButton;
 
-        public PostViewHolder(@NonNull View itemView) {
+        // Constructor for ViewHolder
+        public ViewHolder(View itemView) {
             super(itemView);
-            postTitle = itemView.findViewById(R.id.postTitle);
-            postImage = itemView.findViewById(R.id.postImage);
+            titleTextView = itemView.findViewById(R.id.postTitle);
+            imageView = itemView.findViewById(R.id.postImage);
             detailButton = itemView.findViewById(R.id.detailButton);
         }
     }

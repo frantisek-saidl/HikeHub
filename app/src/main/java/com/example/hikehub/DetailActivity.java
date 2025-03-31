@@ -41,6 +41,7 @@ public class DetailActivity extends AppCompatActivity {
     private ImageView postImage;
     private MapView mapView;
 
+    // Method to initialize the activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,59 +69,51 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
+    // Method to load post details from the database
     private void loadPostDetails(int postId) {
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         Cursor cursor = dbHelper.getHikeDetails(postId);
 
         if (cursor != null && cursor.moveToFirst()) {
-            int titleIndex = cursor.getColumnIndex("title");
-            int descriptionIndex = cursor.getColumnIndex("description");
-            int picturePathIndex = cursor.getColumnIndex("picture_path");
-            int createdAtIndex = cursor.getColumnIndex("created_at");
-            int usernameIndex = cursor.getColumnIndex("username");
-            int startLatIndex = cursor.getColumnIndex("start_latitude");
-            int startLonIndex = cursor.getColumnIndex("start_longitude");
-            int endLatIndex = cursor.getColumnIndex("end_latitude");
-            int endLonIndex = cursor.getColumnIndex("end_longitude");
-            int routeTypeIndex = cursor.getColumnIndex("route_type");
+            String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
+            String description = cursor.getString(cursor.getColumnIndexOrThrow("description"));
+            String picturePath = cursor.getString(cursor.getColumnIndexOrThrow("picture_path"));
+            String createdAtText = cursor.getString(cursor.getColumnIndexOrThrow("created_at"));
+            String username = cursor.getString(cursor.getColumnIndexOrThrow("username"));
+            double startLat = cursor.getDouble(cursor.getColumnIndexOrThrow("start_latitude"));
+            double startLon = cursor.getDouble(cursor.getColumnIndexOrThrow("start_longitude"));
+            double endLat = cursor.getDouble(cursor.getColumnIndexOrThrow("end_latitude"));
+            double endLon = cursor.getDouble(cursor.getColumnIndexOrThrow("end_longitude"));
+            String routeType = cursor.getString(cursor.getColumnIndexOrThrow("route_type"));
 
-            if (titleIndex != -1 && descriptionIndex != -1 && picturePathIndex != -1 && createdAtIndex != -1 && usernameIndex != -1 && startLatIndex != -1 && startLonIndex != -1 && endLatIndex != -1 && endLonIndex != -1 && routeTypeIndex != -1) {
-                String title = cursor.getString(titleIndex);
-                String description = cursor.getString(descriptionIndex);
-                String picturePath = cursor.getString(picturePathIndex);
-                String createdAtText = cursor.getString(createdAtIndex);
-                String username = cursor.getString(usernameIndex);
-                double startLat = cursor.getDouble(startLatIndex);
-                double startLon = cursor.getDouble(startLonIndex);
-                double endLat = cursor.getDouble(endLatIndex);
-                double endLon = cursor.getDouble(endLonIndex);
-                String routeType = cursor.getString(routeTypeIndex);
+            postTitle.setText(title);
+            hikeDescription.setText(description);
+            creatorUsername.setText("Created by: " + username);
+            createdAt.setText("Created at: " + createdAtText);
 
-                postTitle.setText(title);
-                hikeDescription.setText(description);
-                creatorUsername.setText("Created by: " + username);
-                createdAt.setText("Created at: " + createdAtText);
-
+            if (picturePath != null) {
                 File imgFile = new File(picturePath);
                 if (imgFile.exists()) {
                     Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                     postImage.setImageBitmap(bitmap);
                 } else {
+                    postImage.setImageResource(R.drawable.map);
                     Log.e("DetailActivity", "Image file not found: " + picturePath);
                 }
-
-                fetchRoute(startLat, startLon, endLat, endLon, routeType);
             } else {
-                Log.e("DetailActivity", "Column not found in cursor");
+                postImage.setImageResource(R.drawable.map);
             }
+
+            fetchRoute(startLat, startLon, endLat, endLon, routeType);
         } else {
-            Log.e("DetailActivity", "Cursor is null or empty");
+            Log.e("DetailActivity", "No data found for postId: " + postId);
         }
         if (cursor != null) {
             cursor.close();
         }
     }
 
+    // Method to fetch the route from the OSRM API
     private void fetchRoute(double startLat, double startLon, double endLat, double endLon, String routeType) {
         OkHttpClient client = new OkHttpClient();
         String url = "http://router.project-osrm.org/route/v1/" + routeType + "/" + startLon + "," + startLat + ";" + endLon + "," + endLat + "?overview=full&geometries=geojson";
